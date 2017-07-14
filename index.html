@@ -14,7 +14,7 @@
     </div>
 
     <template id="todo-item">
-        <li>{{ todo.text }}</li>
+        <li><input type="checkbox" v-model="todo.checked">{{ todo.text }}</li>
     </template>
 </head>
 <body>
@@ -30,10 +30,10 @@
             data : {
                 title : "할일관리",
                 todos : [
-                    { id : 1, text : "할일1" },
-                    { id : 2, text : "할일2" },
-                    { id : 3, text : "할일3" },
-                    { id : 4, text : "할일4" },
+                    { id : 1, text : "할일1", checked : false },
+                    { id : 2, text : "할일2", checked : false },
+                    { id : 3, text : "할일3", checked : false },
+                    { id : 4, text : "할일4", checked : false },
                 ]
             }
         });
