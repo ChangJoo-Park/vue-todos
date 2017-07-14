@@ -3,6 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <title>Vue Test</title>
+    <style>
+        li.checked {
+            text-decoration:line-through;
+        }
+    </style>
+</head>
+<body>
     <div id="app">
         <p> {{ title }}</p>
         <ul>
@@ -14,10 +21,8 @@
     </div>
 
     <template id="todo-item">
-        <li><input type="checkbox" v-model="todo.checked">{{ todo.text }}</li>
+        <li v-bind:class="{ checked : todo.checked }"><input type="checkbox" v-model="todo.checked">{{ todo.text }}</li>
     </template>
-</head>
-<body>
     <script src="https://unpkg.com/vue"></script>
     <script>
         Vue.component('todo-item', {
