@@ -6,9 +6,10 @@
     <div id="app">
         <p> {{ title }}</p>
         <ul>
-            <li v-for="todo in todos">
-                {{ todo.text }}
-            </li>
+            <todo-item
+                    v-for="todo in todos"
+                    v-bind:todo="todo"
+            ></todo-item>
         </ul>
 
     </div>
@@ -16,6 +17,10 @@
 <body>
     <script src="https://unpkg.com/vue"></script>
     <script>
+        Vue.component('todo-item', {
+            props : ['todo'],
+            template : '<li>{{ todo.text }}</li>'
+        })
         var app = new Vue({
             el : "#app",
             data : {
