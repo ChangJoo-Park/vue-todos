@@ -11,25 +11,29 @@
                     v-bind:todo="todo"
             ></todo-item>
         </ul>
-
     </div>
+
+    <template id="todo-item">
+        <li>{{ todo.text }}</li>
+    </template>
 </head>
 <body>
     <script src="https://unpkg.com/vue"></script>
     <script>
         Vue.component('todo-item', {
-            props : ['todo'],
-            template : '<li>{{ todo.text }}</li>'
-        })
+            template : '#todo-item',
+            props : ['todo']
+        });
+
         var app = new Vue({
             el : "#app",
             data : {
                 title : "할일관리",
                 todos : [
-                    { text : "할일1" },
-                    { text : "할일2" },
-                    { text : "할일3" },
-                    { text : "할일4" },
+                    { id : 1, text : "할일1" },
+                    { id : 2, text : "할일2" },
+                    { id : 3, text : "할일3" },
+                    { id : 4, text : "할일4" },
                 ]
             }
         });
