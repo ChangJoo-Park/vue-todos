@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Vue Test</title>
+    <div id="app">
+        <p> {{ title }}</p>
+        <ul>
+            <li v-for="todo in todos">
+                {{ todo.text }}
+            </li>
+        </ul>
+
+    </div>
+</head>
+<body>
+    <script src="https://unpkg.com/vue"></script>
+    <script>
+        var app = new Vue({
+            el : "#app",
+            data : {
+                title : "할일관리",
+                todos : [
+                    { text : "할일1" },
+                    { text : "할일2" },
+                    { text : "할일3" },
+                    { text : "할일4" },
+                ]
+            }
+        });
+    </script>
+</body>
+</html>
