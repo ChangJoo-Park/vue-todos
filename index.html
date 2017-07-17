@@ -24,7 +24,24 @@
         <li v-bind:class="{ checked : todo.checked }"><input type="checkbox" v-model="todo.checked">{{ todo.text }}</li>
     </template>
     <script src="https://unpkg.com/vue"></script>
+    <script src="https://www.gstatic.com/firebasejs/3.8.0/firebase.js"></script>
     <script>
+
+        var config = {
+            apiKey: "AIzaSyA0b5k5WLZazkFYSqKpWVIZ5IjbNHkkrmM",
+            authDomain: "todo-list-d30f9.firebaseapp.com",
+            databaseURL: "https://todo-list-d30f9.firebaseio.com",
+            projectId: "todo-list-d30f9",
+            storageBucket: "todo-list-d30f9.appspot.com",
+            messagingSenderId: "541686758504"
+        };
+
+        firebase.initializeApp(config);
+
+        var db = firebase.database();
+
+        db.ref("rkdgusrnrlrl/todosF")
+
         Vue.component('todo-item', {
             template : '#todo-item',
             props : ['todo']
