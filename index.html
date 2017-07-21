@@ -17,13 +17,20 @@
                     v-for="todo in todos"
                     v-bind:todo="todo"
             ></todo-item>
+            <todo-input></todo-input>
         </ul>
     </div>
 
     <template id="todo-item">
-        <li v-bind:class="{ checked : todo.checked }"><input type="checkbox" v-model="todo.checked">{{ todo.text }}</li>
+        <li v-bind:class="{ checked : todo.checked }"><input type="checkbox" v-on:click="checkTodo()">{{ todo.text }}</li>
     </template>
+
+    <template id="todo-input">
+        <li><input type="text" @keyup.enter="makeNewTodo()" v-model="text"></li>
+    </template>
+
     <script src="https://unpkg.com/vue"></script>
+    <script src="https://cdn.jsdelivr.net/lodash/4.17.4/lodash.min.js"></script>
     <script src="https://www.gstatic.com/firebasejs/3.8.0/firebase.js"></script>
     <script>
 
@@ -35,28 +42,68 @@
             storageBucket: "todo-list-d30f9.appspot.com",
             messagingSenderId: "541686758504"
         };
-
         firebase.initializeApp(config);
-
         var db = firebase.database();
 
-        db.ref("rkdgusrnrlrl/todosF")
+        var todosRef = db.ref("rkdgusrnrlrl/todos");
+
+        //DB 에 할일 상태가 변경된 경우
+        todosRef.on('child_changed', function(data) {
+            console.log(data.toJSON());
+        });
+        //DB 에 할일이 추가된 경우
+        todosRef.on('child_added', function(data) {
+            console.log(data.toJSON());
+            const todo = data.toJSON();
+            store.todos[todo.id] = todo;
+        });
+
+
+        var store = {
+            todos : {},
+            changeTodo : function (id, todo) {
+                this.todos[id] = todo;
+            },
+            setTodos : function (todosData) {
+                this.todos = todosData;
+            }
+        };
+
+
+
 
         Vue.component('todo-item', {
             template : '#todo-item',
-            props : ['todo']
+            props : ['todo'],
+            mounted : function () {
+                console.log("todo mounted");
+            },
+            methods : {
+                hello : function () {
+                    console.log(this.todo.id);
+                },
+                checkTodo : function () {
+                    var newTodo = {};
+                    if (this.todo.checked) {
+                        newTodo = _.assign(this.todo, {checked : false})
+                    } else {
+                        newTodo = _.assign(this.todo, {checked : true})
+                    }
+                    store.changeTodo(this.todo.id, newTodo);
+                }
+            }
         });
 
-        var app = new Vue({
-            el : "#app",
-            data : {
-                title : "할일관리",
-                todos : [
-                    { id : 1, text : "할일1", checked : false },
-                    { id : 2, text : "할일2", checked : false },
-                    { id : 3, text : "할일3", checked : false },
-                    { id : 4, text : "할일4", checked : false },
-                ]
+        Vue.component('todo-input', {
+            template : '#todo-input',
+            methods : {
+                makeNewTodo : function () {
+                    var newId = todosRef.push().key;
+                    var todoData = {};
+                    todoData[newId] = { id : newId, text : this.text, checked : false };
+                    todosRef.update(todoData);
+                    console.log(this.text);
+                }
             }
         });
     </script>
