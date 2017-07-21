@@ -30,6 +30,7 @@
     </template>
 
     <script src="https://unpkg.com/vue"></script>
+    <script src="https://unpkg.com/vuex"></script>
     <script src="https://cdn.jsdelivr.net/lodash/4.17.4/lodash.min.js"></script>
     <script src="https://www.gstatic.com/firebasejs/3.8.0/firebase.js"></script>
     <script>
@@ -43,34 +44,60 @@
             messagingSenderId: "541686758504"
         };
         firebase.initializeApp(config);
+
+
         var db = firebase.database();
 
         var todosRef = db.ref("rkdgusrnrlrl/todos");
+/*
+        todosRef.on('child_changed', function(data) {
+            console.log(data)
+        });
+*/
+        /*
+        var newId = todosRef.push().key;
+        var todoData = {};
+        todoData[newId] = { id : newId, text : "할일1", checked : false };
+        todosRef.update(todoData);
+        */
 
-        //DB 에 할일 상태가 변경된 경우
+        var app;
+
         todosRef.on('child_changed', function(data) {
             console.log(data.toJSON());
         });
-        //DB 에 할일이 추가된 경우
-        todosRef.on('child_added', function(data) {
-            console.log(data.toJSON());
-            const todo = data.toJSON();
-            store.todos[todo.id] = todo;
+
+
+
+        var store = new Vuex.Store({
+            state : {
+                title : "할일 목록",
+                todos : {}
+            },
+            mutations: {
+                changeTodo : function (state, id, todo) {
+                    console.log(state);
+                    state.todos[id] = todo;
+                },
+                setTodos : function (state, todosData) {
+                    state.todos = todosData;
+                },
+                appendTodo : function (state, todo) {
+                    console.log(state);
+                    Vue.set(state.todos, todo.id, todo);
+                }
+            },
+            getters : {
+                getTodos : function (state) {
+                    return state.todos;
+                }
+            }
         });
 
-
-        var store = {
-            todos : {},
-            changeTodo : function (id, todo) {
-                this.todos[id] = todo;
-            },
-            setTodos : function (todosData) {
-                this.todos = todosData;
-            }
-        };
-
-
-
+        todosRef.on('child_added', function(data) {
+            const todo = data.toJSON();
+            store.commit('appendTodo', todo);
+        });
 
         Vue.component('todo-item', {
             template : '#todo-item',
@@ -96,16 +123,36 @@
 
         Vue.component('todo-input', {
             template : '#todo-input',
+            props : ['text'],
             methods : {
                 makeNewTodo : function () {
                     var newId = todosRef.push().key;
                     var todoData = {};
                     todoData[newId] = { id : newId, text : this.text, checked : false };
                     todosRef.update(todoData);
-                    console.log(this.text);
+                    this.text = "";
                 }
             }
         });
+
+        todosRef.once('value', function (data) {
+            var rawDate = data.toJSON();
+
+            store.commit('setTodos', rawDate);
+            app = new Vue({
+                el : "#app",
+                computed : {
+                    todos : function () {
+                        return store.state.todos;
+                    },
+                    title : function () {
+                        return store.state.title;
+                    }
+                }
+            });
+        });
+
+
     </script>
 </body>
 </html>
