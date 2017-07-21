@@ -10,7 +10,7 @@
     </style>
 </head>
 <body>
-    <div id="app">
+    <div id="app" style="display: none;">
         <p> {{ title }}</p>
         <ul>
             <todo-item
@@ -22,7 +22,7 @@
     </div>
 
     <template id="todo-item">
-        <li v-bind:class="{ checked : todo.checked }"><input type="checkbox" v-on:click="checkTodo()">{{ todo.text }}</li>
+        <li v-bind:class="{ checked : todo.checked }"><input type="checkbox" v-model="todo.checked" v-on:click="checkTodo()">{{ todo.text }}</li>
     </template>
 
     <template id="todo-input">
@@ -47,27 +47,7 @@
 
 
         var db = firebase.database();
-
         var todosRef = db.ref("rkdgusrnrlrl/todos");
-/*
-        todosRef.on('child_changed', function(data) {
-            console.log(data)
-        });
-*/
-        /*
-        var newId = todosRef.push().key;
-        var todoData = {};
-        todoData[newId] = { id : newId, text : "할일1", checked : false };
-        todosRef.update(todoData);
-        */
-
-        var app;
-
-        todosRef.on('child_changed', function(data) {
-            console.log(data.toJSON());
-        });
-
-
 
         var store = new Vuex.Store({
             state : {
@@ -83,7 +63,6 @@
                     state.todos = todosData;
                 },
                 appendTodo : function (state, todo) {
-                    console.log(state);
                     Vue.set(state.todos, todo.id, todo);
                 }
             },
@@ -99,24 +78,23 @@
             store.commit('appendTodo', todo);
         });
 
+        todosRef.on('child_changed', function(data) {
+            const todo = data.toJSON();
+            store.commit('changeTodo', todo);
+        });
+
         Vue.component('todo-item', {
             template : '#todo-item',
             props : ['todo'],
-            mounted : function () {
-                console.log("todo mounted");
-            },
             methods : {
-                hello : function () {
-                    console.log(this.todo.id);
-                },
-                checkTodo : function () {
-                    var newTodo = {};
-                    if (this.todo.checked) {
-                        newTodo = _.assign(this.todo, {checked : false})
+                checkTodo : function (e) {
+                    var update = {};
+                    if (!this.todo.checked) {
+                        update[this.todo.id+"/"+"checked"] = false;
                     } else {
-                        newTodo = _.assign(this.todo, {checked : true})
+                        update[this.todo.id+"/"+"checked"] = true;
                     }
-                    store.changeTodo(this.todo.id, newTodo);
+                    todosRef.update(update);
                 }
             }
         });
@@ -141,6 +119,10 @@
             store.commit('setTodos', rawDate);
             app = new Vue({
                 el : "#app",
+                mounted : function () {
+                    var divApp = document.getElementById("app");
+                    divApp.style.display = "block";
+                },
                 computed : {
                     todos : function () {
                         return store.state.todos;
