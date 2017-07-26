@@ -16,6 +16,7 @@
             <todo-item
                     v-for="todo in todos"
                     v-bind:todo="todo"
+                    v-bind:key="todo.id"
             ></todo-item>
             <todo-input></todo-input>
         </ul>
