@@ -123,8 +123,10 @@
             app = new Vue({
                 el : "#app",
                 mounted : function () {
-                    var divApp = document.getElementById("app");
-                    divApp.style.display = "block";
+                    // Vue 인스턴스에는 $el 프로퍼티가 있습니다.
+                    // $el 프로퍼티를 이용해 `el`로 지정한 DOM에 접근할 수 있습니다.
+                    // 컴포넌트의 경우에는 `template`에 지정한 DOM 입니다.
+                    this.$el.style.display = "block";
                 },
                 computed : {
                     todos : function () {
