@@ -13,6 +13,8 @@
     <div id="app" style="display: none;">
         <p> {{ title }}</p>
         <ul>
+            <!-- v-for 는 re-rendering 상황에서 처리를 정확하게 하기 위해 -->
+            <!-- key를 바인딩 하도록 변경 되었습니다. (아직은 warning 단계) -->
             <todo-item
                     v-for="todo in todos"
                     v-bind:todo="todo"
