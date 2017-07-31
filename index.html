@@ -49,38 +49,35 @@
         var db = firebase.database();
         var todosRef = db.ref("rkdgusrnrlrl/todos");
 
-        var store = new Vuex.Store({
+        var store = {
             state : {
                 title : "할일 목록",
                 todos : {}
             },
-            mutations: {
-                changeTodo : function (state, id, todo) {
-                    console.log(state);
-                    state.todos[id] = todo;
-                },
-                setTodos : function (state, todosData) {
-                    state.todos = todosData;
-                },
-                appendTodo : function (state, todo) {
-                    Vue.set(state.todos, todo.id, todo);
-                }
+            changeTodo : function (id, todo) {
+                this.state.todos[id] = todo;
             },
-            getters : {
-                getTodos : function (state) {
-                    return state.todos;
-                }
+            setTodos : function (todosData) {
+                this.state.todos = todosData;
+            },
+            appendTodo : function (todo) {
+                this.state.todos[todo.id] = todo;
+            },
+            getTodos : function () {
+                return this.state.todos;
             }
-        });
+
+        };
 
         todosRef.on('child_added', function(data) {
             const todo = data.toJSON();
-            store.commit('appendTodo', todo);
+            console.log(todo);
+            store.appendTodo(todo);
         });
 
         todosRef.on('child_changed', function(data) {
             const todo = data.toJSON();
-            store.commit('changeTodo', todo);
+            store.changeTodo(todo);
         });
 
         Vue.component('todo-item', {
@@ -116,9 +113,12 @@
         todosRef.once('value', function (data) {
             var rawDate = data.toJSON();
 
-            store.commit('setTodos', rawDate);
+            store.setTodos(rawDate);
             app = new Vue({
                 el : "#app",
+                date : function () {
+                    return store;
+                },
                 mounted : function () {
                     var divApp = document.getElementById("app");
                     divApp.style.display = "block";
