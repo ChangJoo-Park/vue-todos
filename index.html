@@ -13,9 +13,12 @@
     <div id="app" style="display: none;">
         <p> {{ title }}</p>
         <ul>
+            <!-- v-for 는 re-rendering 상황에서 처리를 정확하게 하기 위해 -->
+            <!-- key를 바인딩 하도록 변경 되었습니다. (아직은 warning 단계) -->
             <todo-item
                     v-for="todo in todos"
                     v-bind:todo="todo"
+                    v-bind:key="todo.id"
             ></todo-item>
             <todo-input></todo-input>
         </ul>
@@ -101,7 +104,14 @@
 
         Vue.component('todo-input', {
             template : '#todo-input',
-            props : ['text'],
+            data: function () {
+              return {
+                // 컴포넌트 안에 있는 변경할 여지가 있는 데이터의 바인딩은 props를 직접 사용하면 안됩니다.
+                // props는 Component간 전달되어야하는 경우에만 사용합니다.
+                // todo-input 컴포넌트에서 `text`는 변경할 여지가 있는 데이터이므로 data에 정의합니다.
+                text: ''
+              }
+            },
             methods : {
                 makeNewTodo : function () {
                     var newId = todosRef.push().key;
@@ -114,14 +124,16 @@
         });
 
         todosRef.once('value', function (data) {
-            var rawDate = data.toJSON();
+            var rawData = data.toJSON();
 
-            store.commit('setTodos', rawDate);
+            store.commit('setTodos', rawData);
             app = new Vue({
                 el : "#app",
                 mounted : function () {
-                    var divApp = document.getElementById("app");
-                    divApp.style.display = "block";
+                    // Vue 인스턴스에는 $el 프로퍼티가 있습니다.
+                    // $el 프로퍼티를 이용해 `el`로 지정한 DOM에 접근할 수 있습니다.
+                    // 컴포넌트의 경우에는 `template`에 지정한 DOM 입니다.
+                    this.$el.style.display = "block";
                 },
                 computed : {
                     todos : function () {
