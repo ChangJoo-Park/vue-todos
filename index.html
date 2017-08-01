@@ -117,8 +117,13 @@
                     var newId = todosRef.push().key;
                     var todoData = {};
                     todoData[newId] = { id : newId, text : this.text, checked : false };
-                    todosRef.update(todoData);
-                    this.text = "";
+                    // https://vuejs-kr.github.io/jekyll/update/2017/01/19/vuejs-nexttick-example/
+                    // Firebase의 메소드는 Vue와 의존성이 없어서 데이터를 갱신하더라도 화면에 반영이 안됩니다.
+                    // 때문에 다음 tick(싸이클)에 업데이트하도록 강제하면 됩니다.
+                    this.$nextTick(() => {
+                      todosRef.update(todoData);
+                      this.text = "";
+                    })
                 }
             }
         });
